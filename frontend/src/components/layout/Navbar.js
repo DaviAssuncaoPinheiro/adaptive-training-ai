@@ -1,0 +1,53 @@
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useAuthContext } from '@/context/AuthProvider';
+import styles from './Navbar.module.css';
+
+const NAV_ITEMS = [
+  { href: '/dashboard', label: 'Dashboard' },
+  { href: '/session', label: 'Sessão' },
+  { href: '/microcycle', label: 'Microciclo' },
+];
+
+export default function Navbar() {
+  const pathname = usePathname();
+  const { user, signOut } = useAuthContext();
+
+  if (!user) return null;
+
+  const initials = user.email
+    ? user.email.substring(0, 2).toUpperCase()
+    : '??';
+
+  return (
+    <nav className={styles.navbar}>
+      <Link href="/dashboard" className={styles.logo}>
+        <span className={styles.logoIcon}>⚡</span>
+        Adaptive AI
+      </Link>
+
+      <div className={styles.nav}>
+        {NAV_ITEMS.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={`${styles.navLink} ${
+              pathname === item.href ? styles.navLinkActive : ''
+            }`}
+          >
+            {item.label}
+          </Link>
+        ))}
+      </div>
+
+      <div className={styles.userSection}>
+        <div className={styles.avatar}>{initials}</div>
+        <button onClick={signOut} className={styles.signOutBtn}>
+          Sair
+        </button>
+      </div>
+    </nav>
+  );
+}
