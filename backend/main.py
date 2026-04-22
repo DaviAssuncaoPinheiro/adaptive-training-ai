@@ -11,6 +11,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from backend.config import API_PREFIX, DEBUG
 from backend.routers.profiles import router as profiles_router
+from backend.routers.state import router as state_router
+from backend.routers.microcycle import router as microcycle_router
+from backend.routers.sessions import router as sessions_router
 
 # ---------------------------------------------------------------------------
 # App
@@ -40,6 +43,9 @@ app.add_middleware(
 # Routers
 # ---------------------------------------------------------------------------
 app.include_router(profiles_router, prefix=API_PREFIX)
+app.include_router(state_router, prefix=API_PREFIX)
+app.include_router(microcycle_router, prefix=API_PREFIX)
+app.include_router(sessions_router, prefix=API_PREFIX)
 
 
 # ---------------------------------------------------------------------------
