@@ -59,7 +59,10 @@ export default function SessionPage() {
     const { error } = await addLog(payload);
     setLoading(false);
 
-    if (!error) {
+    if (error) {
+      console.error('Erro ao salvar sessão:', error);
+      alert(`Falha ao salvar: ${error.message || JSON.stringify(error)}`);
+    } else {
       setSuccess(true);
       setWorkoutName('');
       setDuration('');
