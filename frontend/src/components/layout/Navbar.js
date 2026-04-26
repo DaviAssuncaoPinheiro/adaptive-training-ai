@@ -8,7 +8,9 @@ import styles from './Navbar.module.css';
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'Dashboard' },
   { href: '/session', label: 'Sessão' },
+  { href: '/check-in', label: 'Check-in' },
   { href: '/microcycle', label: 'Microciclo' },
+  { href: '/profile', label: 'Perfil' },
 ];
 
 export default function Navbar() {

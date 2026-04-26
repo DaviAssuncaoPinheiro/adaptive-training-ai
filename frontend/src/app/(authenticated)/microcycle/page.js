@@ -2,12 +2,20 @@
 
 import { useAuthContext } from '@/context/AuthProvider';
 import { useMicrocycle } from '@/hooks/useMicrocycle';
+import { useMicrocycleGeneration } from '@/hooks/useMicrocycleGeneration';
+import Button from '@/components/ui/Button';
 import { getDayName, formatDate } from '@/lib/utils';
 import styles from './microcycle.module.css';
 
 export default function MicrocyclePage() {
   const { user } = useAuthContext();
-  const { microcycle, loading } = useMicrocycle(user?.id);
+  const { microcycle, loading, refetch } = useMicrocycle(user?.id);
+
+  const generation = useMicrocycleGeneration({
+    onDone: () => refetch(),
+  });
+
+  const isGenerating = generation.status === 'generating';
 
   if (loading) {
     return (
@@ -26,7 +34,20 @@ export default function MicrocyclePage() {
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon}>🗓️</div>
           <p>Nenhum microciclo ativo encontrado.</p>
-          <p>Um novo plano será gerado quando houver dados suficientes no seu perfil.</p>
+          <p>Gere um plano personalizado a partir do seu perfil e histórico.</p>
+          <Button onClick={generation.generate} loading={isGenerating}>
+            {isGenerating ? 'Gerando microciclo…' : 'Gerar meu microciclo'}
+          </Button>
+          {isGenerating && (
+            <p className={styles.pageSubtitle}>
+              Isso pode levar de 30s a 2min — a IA está analisando seu histórico.
+            </p>
+          )}
+          {generation.status === 'failed' && (
+            <p style={{ color: 'var(--color-warning)' }}>
+              Erro: {generation.error}
+            </p>
+          )}
         </div>
       </div>
     );
@@ -41,7 +62,6 @@ export default function MicrocyclePage() {
         {formatDate(microcycle.start_date)} — {formatDate(microcycle.end_date)}
       </p>
 
-      {/* Safety badges */}
       <div className={styles.safetyRow}>
         <span className={`${styles.badge} ${styles.badgeInfo}`}>
           🛡️ Volume máx/músculo: {microcycle.max_weekly_sets_per_muscle} séries
@@ -51,7 +71,6 @@ export default function MicrocyclePage() {
         </span>
       </div>
 
-      {/* Workout cards */}
       <div className={`${styles.workoutsGrid} stagger-children`}>
         {workouts.map((workout, i) => (
           <div key={i} className={styles.workoutCard}>
@@ -74,7 +93,6 @@ export default function MicrocyclePage() {
         ))}
       </div>
 
-      {/* AI Justification */}
       {microcycle.ai_justification && (
         <div className={styles.justificationCard}>
           <h2 className={styles.justificationTitle}>
