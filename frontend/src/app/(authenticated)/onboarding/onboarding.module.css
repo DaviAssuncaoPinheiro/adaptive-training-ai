@@ -8,73 +8,72 @@
 
 .onboardingCard {
   width: 100%;
-  max-width: 520px;
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  padding: var(--space-2xl);
-  backdrop-filter: blur(16px);
-  animation: fadeIn var(--transition-slow) ease-out;
+  max-width: 560px;
+  padding: var(--space-xl);
+  border: var(--border-hair);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  box-shadow: var(--shadow-modal);
+  animation: fadeIn var(--transition-slow) both;
 }
 
 .onboardingHeader {
-  text-align: center;
   margin-bottom: var(--space-xl);
 }
 
 .onboardingTitle {
-  font-size: var(--text-2xl);
-  font-weight: 700;
-  margin-bottom: var(--space-xs);
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: 400;
+  line-height: var(--leading-tight);
+  margin-bottom: var(--space-sm);
 }
 
 .onboardingSubtitle {
+  color: var(--text-secondary);
   font-size: var(--text-sm);
-  color: var(--color-text-secondary);
 }
 
-/* Progress bar */
 .progressBar {
   display: flex;
   gap: var(--space-sm);
-  margin-bottom: var(--space-2xl);
+  margin-bottom: var(--space-xl);
 }
 
 .progressStep {
   flex: 1;
   height: 4px;
-  border-radius: var(--radius-full);
-  background: var(--color-bg-input);
+  border-radius: var(--radius-pill);
+  background: var(--ink-3);
   transition: background var(--transition-base);
 }
 
 .progressStepActive {
-  background: var(--color-accent-gradient);
-  box-shadow: 0 0 8px rgba(99, 102, 241, 0.3);
+  background: var(--heat);
 }
 
-/* Step content */
 .stepContent {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-  animation: fadeIn var(--transition-base) ease-out;
-  min-height: 200px;
+  min-height: 220px;
+  animation: fadeIn var(--transition-base) both;
 }
 
 .stepTitle {
-  font-size: var(--text-lg);
-  font-weight: 600;
   margin-bottom: var(--space-sm);
+  color: var(--text);
+  font-size: var(--text-lg);
+  font-weight: 700;
 }
 
 .stepDescription {
+  color: var(--text-secondary);
   font-size: var(--text-sm);
-  color: var(--color-text-secondary);
   margin-bottom: var(--space-sm);
 }
 
-/* Equipment chips */
 .chipGrid {
   display: flex;
   flex-wrap: wrap;
@@ -82,32 +81,91 @@
 }
 
 .chip {
-  padding: 0.5rem 1rem;
-  font-size: var(--text-sm);
-  font-family: var(--font-sans);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-full);
-  background: var(--color-bg-input);
-  color: var(--color-text-secondary);
+  padding: 0.5rem 0.875rem;
+  border: var(--border-hair);
+  border-radius: var(--radius-pill);
+  background: var(--ink-3);
+  color: var(--text-secondary);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  transition:
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    background var(--transition-fast);
 }
 
 .chip:hover {
-  border-color: var(--color-border-hover);
-  color: var(--color-text-primary);
+  border-color: var(--iron-3);
+  color: var(--text);
 }
 
 .chipSelected {
-  background: var(--color-accent-glow);
-  border-color: var(--color-accent-primary);
-  color: var(--color-text-primary);
+  border-color: var(--heat-line);
+  background: var(--heat-soft);
+  color: var(--heat);
 }
 
-/* Actions */
+.textareaField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.textareaField span {
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.textareaField textarea {
+  width: 100%;
+  min-height: 82px;
+  padding: 0.625rem 0.75rem;
+  border: var(--border-hair);
+  border-radius: var(--radius-xs);
+  outline: none;
+  resize: vertical;
+  background: var(--surface-input);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.textareaField textarea::placeholder {
+  color: var(--text-faint);
+}
+
+.textareaField textarea:focus {
+  border-color: var(--heat);
+  box-shadow: var(--shadow-focus-heat);
+}
+
+.errorText {
+  margin-top: var(--space-md);
+  color: var(--amber);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+
 .stepActions {
   display: flex;
   justify-content: space-between;
   gap: var(--space-md);
   margin-top: var(--space-xl);
+}
+
+@media (max-width: 600px) {
+  .onboardingPage {
+    align-items: flex-start;
+    padding: var(--space-md);
+  }
 }

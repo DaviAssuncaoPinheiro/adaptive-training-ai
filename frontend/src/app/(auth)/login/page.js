@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Brand from '@/components/brand/Brand';
 import { useAuth } from '@/hooks/useAuth';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
@@ -26,10 +27,13 @@ export default function LoginPage() {
     <div className={styles.authPage}>
       <div className={styles.authCard}>
         <div className={styles.authHeader}>
-          <div className={styles.authLogo}>⚡</div>
+          <div className={styles.authLogo}>
+            <Brand />
+          </div>
+          <p className={styles.authEyebrow}>Acesso ao instrumento</p>
           <h1 className={styles.authTitle}>Bem-vindo de volta</h1>
           <p className={styles.authSubtitle}>
-            Entre na sua conta para continuar
+            Entre na sua conta para continuar a prescricao adaptativa.
           </p>
         </div>
 
@@ -60,8 +64,7 @@ export default function LoginPage() {
         </form>
 
         <div className={styles.authFooter}>
-          Não tem uma conta?{' '}
-          <Link href="/register">Criar conta</Link>
+          Nao tem uma conta? <Link href="/register">Criar conta</Link>
         </div>
       </div>
     </div>

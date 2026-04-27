@@ -1,15 +1,19 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
 export function useMicrocycle(userId) {
   const [microcycle, setMicrocycle] = useState(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const fetchActive = useCallback(async () => {
-    if (!userId) return;
+    if (!userId) {
+      setMicrocycle(null);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     const today = new Date().toISOString().split('T')[0];
 
@@ -25,10 +29,14 @@ export function useMicrocycle(userId) {
 
     if (!error) setMicrocycle(data);
     setLoading(false);
-  }, [userId]);
+  }, [supabase, userId]);
 
   useEffect(() => {
-    fetchActive();
+    const timerId = setTimeout(() => {
+      fetchActive();
+    }, 0);
+
+    return () => clearTimeout(timerId);
   }, [fetchActive]);
 
   return { microcycle, loading, refetch: fetchActive };

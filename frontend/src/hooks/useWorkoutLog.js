@@ -1,15 +1,19 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
 export function useWorkoutLog(userId) {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const fetchLogs = useCallback(async () => {
-    if (!userId) return;
+    if (!userId) {
+      setLogs([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     const { data, error } = await supabase
       .from('workout_logs')
@@ -19,10 +23,14 @@ export function useWorkoutLog(userId) {
 
     if (!error) setLogs(data || []);
     setLoading(false);
-  }, [userId]);
+  }, [supabase, userId]);
 
   useEffect(() => {
-    fetchLogs();
+    const timerId = setTimeout(() => {
+      fetchLogs();
+    }, 0);
+
+    return () => clearTimeout(timerId);
   }, [fetchLogs]);
 
   const addLog = async (logData) => {

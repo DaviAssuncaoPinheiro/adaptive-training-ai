@@ -1,15 +1,19 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
 export function useProfile(userId) {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const fetchProfile = useCallback(async () => {
-    if (!userId) return;
+    if (!userId) {
+      setProfile(null);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     const { data } = await supabase
       .from('profiles')
@@ -18,10 +22,14 @@ export function useProfile(userId) {
       .maybeSingle();
     setProfile(data);
     setLoading(false);
-  }, [userId]);
+  }, [supabase, userId]);
 
   useEffect(() => {
-    fetchProfile();
+    const timerId = setTimeout(() => {
+      fetchProfile();
+    }, 0);
+
+    return () => clearTimeout(timerId);
   }, [fetchProfile]);
 
   const saveProfile = async (next) => {

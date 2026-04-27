@@ -1,28 +1,31 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthContext } from '@/context/AuthProvider';
+import { useProfile } from '@/hooks/useProfile';
 import { createClient } from '@/lib/supabase/client';
 import Button from '@/components/ui/Button';
-import Input from '@/components/ui/Input';
-import { Select } from '@/components/ui/Input';
+import Input, { Select } from '@/components/ui/Input';
 import styles from './onboarding.module.css';
 
 const EQUIPMENT_OPTIONS = [
-  'Barra Reta', 'Halteres', 'Anilhas', 'Banco Ajustável',
+  'Barra Reta', 'Halteres', 'Anilhas', 'Banco Ajustavel',
   'Polia/Cabo', 'Barra Fixa', 'Leg Press', 'Smith Machine',
-  'Kettlebell', 'Elásticos', 'Apenas Corpo',
+  'Kettlebell', 'Elasticos', 'Apenas Corpo',
 ];
 
-const TOTAL_STEPS = 3;
+const TOTAL_STEPS = 4;
 
 export default function OnboardingPage() {
   const { user } = useAuthContext();
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
+  const { profile } = useProfile(user?.id);
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [hydratedFromProfile, setHydratedFromProfile] = useState(false);
 
   const [formData, setFormData] = useState({
     age: '',
@@ -30,8 +33,22 @@ export default function OnboardingPage() {
     height_cm: '',
     fitness_level: 'beginner',
     primary_goal: 'hypertrophy',
+    weekly_frequency: '4',
+    session_duration_minutes: '60',
     available_equipment: [],
+    injury_notes: '',
+    exercise_preferences: '',
+    training_constraints: '',
   });
+
+  useEffect(() => {
+    if (!profile || hydratedFromProfile) return;
+    const timerId = setTimeout(() => {
+      setFormData(profileToFormData(profile));
+      setHydratedFromProfile(true);
+    }, 0);
+    return () => clearTimeout(timerId);
+  }, [hydratedFromProfile, profile]);
 
   const updateField = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -49,21 +66,34 @@ export default function OnboardingPage() {
   const handleSubmit = async () => {
     if (!user) return;
     setLoading(true);
+    setError(null);
 
-    const { error } = await supabase.from('profiles').upsert({
+    const { error: saveError } = await supabase.from('profiles').upsert({
       user_id: user.id,
-      age: parseInt(formData.age),
+      age: parseInt(formData.age, 10),
       weight_kg: parseFloat(formData.weight_kg),
       height_cm: parseFloat(formData.height_cm),
       fitness_level: formData.fitness_level,
       primary_goal: formData.primary_goal,
+      weekly_frequency: parseInt(formData.weekly_frequency, 10),
+      session_duration_minutes: parseInt(formData.session_duration_minutes, 10),
       available_equipment: formData.available_equipment,
+      injury_notes: formData.injury_notes || null,
+      exercise_preferences: formData.exercise_preferences || null,
+      training_constraints: formData.training_constraints || null,
     });
 
     setLoading(false);
-    if (!error) {
-      router.push('/dashboard');
+    if (saveError) {
+      if (isMissingMemoryColumn(saveError)) {
+        setError('O banco ainda precisa aplicar a migration dos campos de memoria do atleta antes de salvar esta anamnese.');
+      } else {
+        setError(saveError.message || 'Nao foi possivel salvar sua anamnese.');
+      }
+      return;
     }
+
+    router.push('/dashboard');
   };
 
   return (
@@ -72,11 +102,10 @@ export default function OnboardingPage() {
         <div className={styles.onboardingHeader}>
           <h1 className={styles.onboardingTitle}>Anamnese Inicial</h1>
           <p className={styles.onboardingSubtitle}>
-            Passo {step} de {TOTAL_STEPS} — Vamos conhecer seu perfil
+            Passo {step} de {TOTAL_STEPS} - memoria base para a prescricao.
           </p>
         </div>
 
-        {/* Progress bar */}
         <div className={styles.progressBar}>
           {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
             <div
@@ -88,13 +117,12 @@ export default function OnboardingPage() {
           ))}
         </div>
 
-        {/* Step 1: Dados pessoais */}
         {step === 1 && (
           <div className={styles.stepContent}>
             <div>
-              <h2 className={styles.stepTitle}>Dados Pessoais</h2>
+              <h2 className={styles.stepTitle}>Dados pessoais</h2>
               <p className={styles.stepDescription}>
-                Informações básicas para calibrar as prescrições.
+                Informacoes fisicas usadas para calibrar volume, progressao e seguranca.
               </p>
             </div>
             <Input
@@ -130,25 +158,35 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        {/* Step 2: Nível e objetivo */}
         {step === 2 && (
           <div className={styles.stepContent}>
             <div>
-              <h2 className={styles.stepTitle}>Nível & Objetivo</h2>
+              <h2 className={styles.stepTitle}>Rotina de treino</h2>
               <p className={styles.stepDescription}>
-                Isto define a intensidade e a progressão do seu treino.
+                O motor usa disponibilidade real para nao prescrever um plano que voce nao consegue executar.
               </p>
             </div>
-            <Select
-              id="onb-level"
-              label="Nível de condicionamento"
-              value={formData.fitness_level}
-              onChange={(e) => updateField('fitness_level', e.target.value)}
-            >
-              <option value="beginner">Iniciante</option>
-              <option value="intermediate">Intermediário</option>
-              <option value="advanced">Avançado</option>
-            </Select>
+            <Input
+              id="onb-frequency"
+              label="Dias por semana"
+              type="number"
+              min="1"
+              max="7"
+              value={formData.weekly_frequency}
+              onChange={(e) => updateField('weekly_frequency', e.target.value)}
+              required
+            />
+            <Input
+              id="onb-duration"
+              label="Tempo por sessao (min)"
+              type="number"
+              min="15"
+              max="180"
+              step="5"
+              value={formData.session_duration_minutes}
+              onChange={(e) => updateField('session_duration_minutes', e.target.value)}
+              required
+            />
             <Select
               id="onb-goal"
               label="Objetivo principal"
@@ -156,22 +194,31 @@ export default function OnboardingPage() {
               onChange={(e) => updateField('primary_goal', e.target.value)}
             >
               <option value="hypertrophy">Hipertrofia</option>
-              <option value="strength">Força</option>
-              <option value="endurance">Resistência</option>
+              <option value="strength">Forca</option>
+              <option value="endurance">Resistencia</option>
               <option value="weight_loss">Emagrecimento</option>
             </Select>
           </div>
         )}
 
-        {/* Step 3: Equipamentos */}
         {step === 3 && (
           <div className={styles.stepContent}>
             <div>
-              <h2 className={styles.stepTitle}>Equipamentos Disponíveis</h2>
+              <h2 className={styles.stepTitle}>Nivel & equipamentos</h2>
               <p className={styles.stepDescription}>
-                Selecione tudo que você tem acesso. Isto personaliza os exercícios prescritos.
+                Selecione tudo que voce tem acesso. Isso restringe os exercicios prescritos.
               </p>
             </div>
+            <Select
+              id="onb-level"
+              label="Nivel de condicionamento"
+              value={formData.fitness_level}
+              onChange={(e) => updateField('fitness_level', e.target.value)}
+            >
+              <option value="beginner">Iniciante</option>
+              <option value="intermediate">Intermediario</option>
+              <option value="advanced">Avancado</option>
+            </Select>
             <div className={styles.chipGrid}>
               {EQUIPMENT_OPTIONS.map((item) => (
                 <button
@@ -191,7 +238,46 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        {/* Navigation */}
+        {step === 4 && (
+          <div className={styles.stepContent}>
+            <div>
+              <h2 className={styles.stepTitle}>Restricoes & preferencias</h2>
+              <p className={styles.stepDescription}>
+                Aqui nasce a memoria do atleta. Depois voce pode editar tudo em Perfil.
+              </p>
+            </div>
+            <label className={styles.textareaField}>
+              <span>Lesoes, dores ou restricoes</span>
+              <textarea
+                value={formData.injury_notes}
+                onChange={(e) => updateField('injury_notes', e.target.value)}
+                placeholder="Ex: ombro direito sensivel em desenvolvimento acima da cabeca."
+                rows={3}
+              />
+            </label>
+            <label className={styles.textareaField}>
+              <span>Preferencias de exercicios</span>
+              <textarea
+                value={formData.exercise_preferences}
+                onChange={(e) => updateField('exercise_preferences', e.target.value)}
+                placeholder="Ex: prefiro leg press a agachamento livre; gosto de barras."
+                rows={3}
+              />
+            </label>
+            <label className={styles.textareaField}>
+              <span>Restricoes de agenda ou contexto</span>
+              <textarea
+                value={formData.training_constraints}
+                onChange={(e) => updateField('training_constraints', e.target.value)}
+                placeholder="Ex: treino em academia cheia de noite; sexta costuma ser curta."
+                rows={3}
+              />
+            </label>
+          </div>
+        )}
+
+        {error && <p className={styles.errorText}>{error}</p>}
+
         <div className={styles.stepActions}>
           {step > 1 ? (
             <Button variant="secondary" onClick={() => setStep(step - 1)}>
@@ -202,7 +288,7 @@ export default function OnboardingPage() {
           )}
 
           {step < TOTAL_STEPS ? (
-            <Button onClick={() => setStep(step + 1)}>Próximo</Button>
+            <Button onClick={() => setStep(step + 1)}>Proximo</Button>
           ) : (
             <Button onClick={handleSubmit} loading={loading}>
               Finalizar
@@ -212,4 +298,35 @@ export default function OnboardingPage() {
       </div>
     </div>
   );
+}
+
+function isMissingMemoryColumn(error) {
+  const text = `${error?.message || ''} ${error?.details || ''}`.toLowerCase();
+  return [
+    'weekly_frequency',
+    'session_duration_minutes',
+    'injury_notes',
+    'exercise_preferences',
+    'training_constraints',
+  ].some((column) => text.includes(column));
+}
+
+function profileToFormData(profile) {
+  return {
+    age: profile.age ? String(profile.age) : '',
+    weight_kg: profile.weight_kg ? String(profile.weight_kg) : '',
+    height_cm: profile.height_cm ? String(profile.height_cm) : '',
+    fitness_level: profile.fitness_level || 'beginner',
+    primary_goal: profile.primary_goal || 'hypertrophy',
+    weekly_frequency: profile.weekly_frequency ? String(profile.weekly_frequency) : '4',
+    session_duration_minutes: profile.session_duration_minutes
+      ? String(profile.session_duration_minutes)
+      : '60',
+    available_equipment: Array.isArray(profile.available_equipment)
+      ? profile.available_equipment
+      : [],
+    injury_notes: profile.injury_notes || '',
+    exercise_preferences: profile.exercise_preferences || '',
+    training_constraints: profile.training_constraints || '',
+  };
 }

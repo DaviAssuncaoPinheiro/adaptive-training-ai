@@ -24,6 +24,12 @@ class GenerateResponse(BaseModel):
     status: str
 
 
+class GenerateRequest(BaseModel):
+    weekly_focus: str | None = None
+    constraints: str | None = None
+    intensity_preference: str | None = None
+
+
 class JobStatusResponse(BaseModel):
     id: str
     status: str
@@ -38,10 +44,14 @@ class JobStatusResponse(BaseModel):
     response_model=GenerateResponse,
     status_code=status.HTTP_202_ACCEPTED,
 )
-async def generate(user: AuthedUser = Depends(get_current_user)) -> GenerateResponse:
+async def generate(
+    payload: GenerateRequest | None = None,
+    user: AuthedUser = Depends(get_current_user),
+) -> GenerateResponse:
     db = SupabaseUserClient(user.jwt)
     job = db.create_job(user.user_id)
-    asyncio.create_task(_run_job(job_id=job["id"], user=user))
+    briefing = payload.model_dump(exclude_none=True) if payload else {}
+    asyncio.create_task(_run_job(job_id=job["id"], user=user, briefing=briefing))
     return GenerateResponse(job_id=job["id"], status=job["status"])
 
 
@@ -62,11 +72,11 @@ def get_active(user: AuthedUser = Depends(get_current_user)) -> dict[str, Any] |
 
 # ---- background work --------------------------------------------------------
 
-async def _run_job(*, job_id: str, user: AuthedUser) -> None:
+async def _run_job(*, job_id: str, user: AuthedUser, briefing: dict[str, Any]) -> None:
     db = SupabaseUserClient(user.jwt)
     db.update_job(job_id, status="running")
     try:
-        microcycle = await asyncio.to_thread(_do_generate, user=user, db=db)
+        microcycle = await asyncio.to_thread(_do_generate, user=user, db=db, briefing=briefing)
         microcycle_payload = microcycle.model_dump(mode="json")
         # Schema's `user_id` is set already; insert returns the row with the
         # generated UUID for `microcycle_id`.
@@ -87,7 +97,7 @@ async def _run_job(*, job_id: str, user: AuthedUser) -> None:
         )
 
 
-def _do_generate(*, user: AuthedUser, db: SupabaseUserClient):
+def _do_generate(*, user: AuthedUser, db: SupabaseUserClient, briefing: dict[str, Any]):
     profile = db.get_profile(user.user_id)
     if not profile:
         raise GenerationError("profile not found — finish onboarding first")
@@ -100,6 +110,7 @@ def _do_generate(*, user: AuthedUser, db: SupabaseUserClient):
         profile=profile,
         recent_logs=logs,
         recent_check_ins=check_ins,
+        weekly_briefing=briefing,
     )
 
     # Replace the LLM-only justification with one grounded in PubMed (RAG).
