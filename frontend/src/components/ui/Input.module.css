@@ -1,60 +1,69 @@
 .field {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
+  gap: var(--space-1);
 }
 
 .label {
-  font-size: var(--text-sm);
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
   font-weight: 500;
-  color: var(--color-text-secondary);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .input {
   width: 100%;
-  padding: 0.625rem 0.875rem;
-  font-family: var(--font-sans);
-  font-size: var(--text-sm);
-  color: var(--color-text-primary);
-  background: var(--color-bg-input);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  min-height: 40px;
+  padding: 0.625rem 0.75rem;
+  border: var(--border-hair);
+  border-radius: var(--radius-xs);
   outline: none;
-  transition: all var(--transition-fast);
+  background: var(--surface-input);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background var(--transition-fast);
 }
 
 .input::placeholder {
-  color: var(--color-text-muted);
+  color: var(--text-faint);
 }
 
 .input:focus {
-  border-color: var(--color-accent-primary);
-  box-shadow: 0 0 0 3px var(--color-accent-glow);
+  border-color: var(--heat);
+  box-shadow: var(--shadow-focus-heat);
 }
 
 .input:disabled {
-  opacity: 0.5;
   cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .error {
-  border-color: var(--color-danger);
+  border-color: var(--plasma);
 }
 
 .error:focus {
-  box-shadow: 0 0 0 3px var(--color-danger-soft);
+  box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.2);
 }
 
 .errorText {
+  color: var(--plasma);
+  font-family: var(--font-mono);
   font-size: var(--text-xs);
-  color: var(--color-danger);
 }
 
-/* Select variant */
 .select {
   composes: input;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23b8b8bd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
   padding-right: 2.25rem;

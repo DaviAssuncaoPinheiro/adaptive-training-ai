@@ -15,6 +15,7 @@ import os
 from datetime import date, timedelta
 from typing import Any
 
+import httpx
 import ollama
 from pydantic import ValidationError
 
@@ -23,6 +24,8 @@ from schemas.microcycle import MicrocycleSchema
 logger = logging.getLogger(__name__)
 
 LLM_MODEL_ID = os.getenv("MICROCYCLE_MODEL_ID", "llama3.1")
+GEMINI_MODEL_ID = os.getenv("GEMINI_MODEL_ID", "gemini-2.5-flash")
+GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 
 # Per-level safety caps (sets/muscle/week, RPE ceiling). Conservative on
 # purpose — safer to under-prescribe than to overtrain a beginner.
@@ -45,6 +48,7 @@ def generate_microcycle(
     profile: dict[str, Any],
     recent_logs: list[dict[str, Any]],
     recent_check_ins: list[dict[str, Any]],
+    weekly_briefing: dict[str, Any] | None = None,
     start_date: date | None = None,
     rag_justification: str | None = None,
 ) -> MicrocycleSchema:
@@ -52,7 +56,7 @@ def generate_microcycle(
     end = start + timedelta(days=MICROCYCLE_DAYS - 1)
     caps = _caps_for(profile.get("fitness_level", "beginner"))
 
-    prompt = _build_prompt(profile, recent_logs, recent_check_ins, caps)
+    prompt = _build_prompt(profile, recent_logs, recent_check_ins, caps, weekly_briefing or {})
     raw_text = _call_llm(prompt)
     plan = _parse_plan(raw_text)
 
@@ -89,10 +93,12 @@ def _build_prompt(
     logs: list[dict[str, Any]],
     check_ins: list[dict[str, Any]],
     caps: dict[str, int],
+    weekly_briefing: dict[str, Any],
 ) -> str:
     equipment = ", ".join(profile.get("available_equipment") or []) or "nenhum equipamento informado"
     log_summary = _summarise_logs(logs)
     readiness_summary = _summarise_check_ins(check_ins)
+    weekly_context = _summarise_weekly_briefing(weekly_briefing)
 
     return (
         "Você é um técnico de força e condicionamento. Gere UM microciclo "
@@ -104,7 +110,14 @@ def _build_prompt(
         f"Altura: {profile.get('height_cm')} cm\n"
         f"- Nível: {profile.get('fitness_level')}\n"
         f"- Objetivo principal: {profile.get('primary_goal')}\n"
+        f"- Frequencia disponivel: {profile.get('weekly_frequency') or 'N/A'} dias/semana\n"
+        f"- Tempo por sessao: {profile.get('session_duration_minutes') or 'N/A'} min\n"
         f"- Equipamentos: {equipment}\n\n"
+        f"MEMORIA DO ATLETA:\n"
+        f"- Lesoes/restricoes: {profile.get('injury_notes') or 'nada informado'}\n"
+        f"- Preferencias de exercicios: {profile.get('exercise_preferences') or 'nada informado'}\n"
+        f"- Restricoes de agenda/contexto: {profile.get('training_constraints') or 'nada informado'}\n\n"
+        f"BRIEFING DA SEMANA:\n{weekly_context}\n\n"
         f"HISTÓRICO RECENTE (últimos 14 dias):\n{log_summary}\n\n"
         f"PRONTIDÃO RECENTE (últimos 14 dias):\n{readiness_summary}\n\n"
         "REGRAS DE SEGURANÇA (obrigatórias):\n"
@@ -113,6 +126,7 @@ def _build_prompt(
         f"~{caps['max_weekly_sets_per_muscle']} séries.\n"
         "- Use SOMENTE exercícios compatíveis com os equipamentos disponíveis.\n"
         "- Inclua 1 a 2 dias de descanso (sem exercícios) na semana.\n\n"
+        "- Respeite lesoes, restricoes, preferencias e disponibilidade semanal informadas.\n"
         "SCHEMA JSON ESPERADO (responda exatamente neste formato):\n"
         "{\n"
         '  "ai_justification": "string curta em PT-BR explicando as escolhas",\n'
@@ -166,6 +180,21 @@ def _summarise_check_ins(check_ins: list[dict[str, Any]]) -> str:
     )
 
 
+def _summarise_weekly_briefing(briefing: dict[str, Any]) -> str:
+    if not briefing:
+        return "- Sem briefing especifico. Use memoria do atleta, check-ins e historico recente."
+
+    focus = briefing.get("weekly_focus") or "nao informado"
+    constraints = briefing.get("constraints") or "nao informado"
+    intensity = briefing.get("intensity_preference") or "auto"
+
+    return (
+        f"- Foco declarado: {focus}\n"
+        f"- Restricoes desta semana: {constraints}\n"
+        f"- Preferencia de agressividade: {intensity}"
+    )
+
+
 def _avg(values: list[Any]) -> float | None:
     nums = [v for v in values if isinstance(v, (int, float))]
     if not nums:
@@ -174,6 +203,13 @@ def _avg(values: list[Any]) -> float | None:
 
 
 def _call_llm(prompt: str) -> str:
+    provider = os.getenv("MICROCYCLE_PROVIDER", "ollama").strip().lower()
+    if provider == "gemini":
+        return _call_gemini(prompt)
+    return _call_ollama(prompt)
+
+
+def _call_ollama(prompt: str) -> str:
     host = os.getenv("OLLAMA_HOST", "http://localhost:11434")
     client = ollama.Client(host=host)
     try:
@@ -192,7 +228,56 @@ def _call_llm(prompt: str) -> str:
     return text
 
 
+def _call_gemini(prompt: str) -> str:
+    api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+    if not api_key:
+        raise GenerationError("GEMINI_API_KEY is not configured")
+
+    model = os.getenv("GEMINI_MODEL_ID", GEMINI_MODEL_ID)
+    payload = {
+        "contents": [
+            {
+                "role": "user",
+                "parts": [{"text": prompt}],
+            }
+        ],
+        "generationConfig": {
+            "temperature": 0.4,
+            "responseMimeType": "application/json",
+        },
+    }
+
+    try:
+        response = httpx.post(
+            GEMINI_ENDPOINT.format(model=model),
+            headers={
+                "Content-Type": "application/json",
+                "x-goog-api-key": api_key,
+            },
+            json=payload,
+            timeout=120,
+        )
+        response.raise_for_status()
+    except httpx.HTTPStatusError as exc:
+        detail = exc.response.text[:300] if exc.response is not None else str(exc)
+        raise GenerationError(f"Gemini call failed: {detail}") from exc
+    except httpx.HTTPError as exc:
+        raise GenerationError(f"Gemini call failed: {exc}") from exc
+
+    data = response.json()
+    parts = (
+        data.get("candidates", [{}])[0]
+        .get("content", {})
+        .get("parts", [])
+    )
+    text = "".join(part.get("text", "") for part in parts if isinstance(part, dict)).strip()
+    if not text:
+        raise GenerationError("Gemini returned an empty response")
+    return text
+
+
 def _parse_plan(raw_text: str) -> dict[str, Any]:
+    raw_text = _strip_json_fence(raw_text)
     try:
         data = json.loads(raw_text)
     except json.JSONDecodeError as exc:
@@ -200,6 +285,20 @@ def _parse_plan(raw_text: str) -> dict[str, Any]:
     if not isinstance(data, dict):
         raise GenerationError("LLM JSON root is not an object")
     return data
+
+
+def _strip_json_fence(raw_text: str) -> str:
+    text = raw_text.strip()
+    if text.startswith("```"):
+        text = text.removeprefix("```json").removeprefix("```").strip()
+        if text.endswith("```"):
+            text = text[:-3].strip()
+    if not text.startswith("{"):
+        start = text.find("{")
+        end = text.rfind("}")
+        if start != -1 and end != -1 and end > start:
+            text = text[start : end + 1]
+    return text
 
 
 def _apply_safety_caps(plan: MicrocycleSchema, caps: dict[str, int]) -> MicrocycleSchema:

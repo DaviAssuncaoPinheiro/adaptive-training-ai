@@ -8,9 +8,9 @@ import Input, { Select } from '@/components/ui/Input';
 import styles from './profile.module.css';
 
 const EQUIPMENT_OPTIONS = [
-  'Barra Reta', 'Halteres', 'Anilhas', 'Banco Ajustável',
+  'Barra Reta', 'Halteres', 'Anilhas', 'Banco Ajustavel',
   'Polia/Cabo', 'Barra Fixa', 'Leg Press', 'Smith Machine',
-  'Kettlebell', 'Elásticos', 'Apenas Corpo',
+  'Kettlebell', 'Elasticos', 'Apenas Corpo',
 ];
 
 const emptyForm = {
@@ -19,7 +19,12 @@ const emptyForm = {
   height_cm: '',
   fitness_level: 'beginner',
   primary_goal: 'hypertrophy',
+  weekly_frequency: '4',
+  session_duration_minutes: '60',
   available_equipment: [],
+  injury_notes: '',
+  exercise_preferences: '',
+  training_constraints: '',
 };
 
 export default function ProfilePage() {
@@ -31,14 +36,23 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!profile) return;
-    setForm({
-      age: String(profile.age ?? ''),
-      weight_kg: String(profile.weight_kg ?? ''),
-      height_cm: String(profile.height_cm ?? ''),
-      fitness_level: profile.fitness_level ?? 'beginner',
-      primary_goal: profile.primary_goal ?? 'hypertrophy',
-      available_equipment: profile.available_equipment ?? [],
-    });
+    const timerId = setTimeout(() => {
+      setForm({
+        age: String(profile.age ?? ''),
+        weight_kg: String(profile.weight_kg ?? ''),
+        height_cm: String(profile.height_cm ?? ''),
+        fitness_level: profile.fitness_level ?? 'beginner',
+        primary_goal: profile.primary_goal ?? 'hypertrophy',
+        weekly_frequency: String(profile.weekly_frequency ?? '4'),
+        session_duration_minutes: String(profile.session_duration_minutes ?? '60'),
+        available_equipment: profile.available_equipment ?? [],
+        injury_notes: profile.injury_notes ?? '',
+        exercise_preferences: profile.exercise_preferences ?? '',
+        training_constraints: profile.training_constraints ?? '',
+      });
+    }, 0);
+
+    return () => clearTimeout(timerId);
   }, [profile]);
 
   const updateField = (field, value) =>
@@ -63,7 +77,12 @@ export default function ProfilePage() {
       height_cm: parseFloat(form.height_cm),
       fitness_level: form.fitness_level,
       primary_goal: form.primary_goal,
+      weekly_frequency: parseInt(form.weekly_frequency, 10),
+      session_duration_minutes: parseInt(form.session_duration_minutes, 10),
       available_equipment: form.available_equipment,
+      injury_notes: form.injury_notes || null,
+      exercise_preferences: form.exercise_preferences || null,
+      training_constraints: form.training_constraints || null,
     });
 
     setSaving(false);
@@ -87,7 +106,7 @@ export default function ProfilePage() {
     <div className={styles.profilePage}>
       <h1 className={styles.pageTitle}>Perfil</h1>
       <p className={styles.pageSubtitle}>
-        Atualize os dados que alimentam a prescrição da IA.
+        Atualize a memoria do atleta que alimenta a prescricao da IA.
       </p>
 
       <form className={styles.card} onSubmit={handleSubmit}>
@@ -125,17 +144,17 @@ export default function ProfilePage() {
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Nível & objetivo</h2>
+          <h2 className={styles.sectionTitle}>Nivel & objetivo</h2>
           <div className={styles.row}>
             <Select
               id="profile-level"
-              label="Nível"
+              label="Nivel"
               value={form.fitness_level}
               onChange={(e) => updateField('fitness_level', e.target.value)}
             >
               <option value="beginner">Iniciante</option>
-              <option value="intermediate">Intermediário</option>
-              <option value="advanced">Avançado</option>
+              <option value="intermediate">Intermediario</option>
+              <option value="advanced">Avancado</option>
             </Select>
             <Select
               id="profile-goal"
@@ -144,15 +163,42 @@ export default function ProfilePage() {
               onChange={(e) => updateField('primary_goal', e.target.value)}
             >
               <option value="hypertrophy">Hipertrofia</option>
-              <option value="strength">Força</option>
-              <option value="endurance">Resistência</option>
+              <option value="strength">Forca</option>
+              <option value="endurance">Resistencia</option>
               <option value="weight_loss">Emagrecimento</option>
             </Select>
           </div>
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Equipamentos disponíveis</h2>
+          <h2 className={styles.sectionTitle}>Rotina</h2>
+          <div className={styles.row}>
+            <Input
+              id="profile-frequency"
+              label="Dias por semana"
+              type="number"
+              min="1"
+              max="7"
+              value={form.weekly_frequency}
+              onChange={(e) => updateField('weekly_frequency', e.target.value)}
+              required
+            />
+            <Input
+              id="profile-duration"
+              label="Tempo por sessao (min)"
+              type="number"
+              min="15"
+              max="180"
+              step="5"
+              value={form.session_duration_minutes}
+              onChange={(e) => updateField('session_duration_minutes', e.target.value)}
+              required
+            />
+          </div>
+        </section>
+
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Equipamentos disponiveis</h2>
           <div className={styles.chipGrid}>
             {EQUIPMENT_OPTIONS.map((item) => (
               <button
@@ -169,6 +215,37 @@ export default function ProfilePage() {
           </div>
         </section>
 
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Memoria do atleta</h2>
+          <label className={styles.textareaField}>
+            <span>Lesoes, dores ou restricoes</span>
+            <textarea
+              value={form.injury_notes}
+              onChange={(e) => updateField('injury_notes', e.target.value)}
+              placeholder="Ex: ombro direito sensivel em desenvolvimento acima da cabeca."
+              rows={3}
+            />
+          </label>
+          <label className={styles.textareaField}>
+            <span>Preferencias de exercicios</span>
+            <textarea
+              value={form.exercise_preferences}
+              onChange={(e) => updateField('exercise_preferences', e.target.value)}
+              placeholder="Ex: prefiro leg press a agachamento livre; gosto de barras."
+              rows={3}
+            />
+          </label>
+          <label className={styles.textareaField}>
+            <span>Restricoes de agenda ou contexto</span>
+            <textarea
+              value={form.training_constraints}
+              onChange={(e) => updateField('training_constraints', e.target.value)}
+              placeholder="Ex: sexta costuma ser curta; academia cheia no horario noturno."
+              rows={3}
+            />
+          </label>
+        </section>
+
         {feedback && (
           <p
             className={
@@ -180,7 +257,7 @@ export default function ProfilePage() {
         )}
 
         <Button type="submit" loading={saving} fullWidth>
-          Salvar alterações
+          Salvar alteracoes
         </Button>
       </form>
     </div>

@@ -1,0 +1,53 @@
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--heat);
+}
+
+.mark {
+  display: block;
+  flex: 0 0 auto;
+  color: var(--heat);
+}
+
+.mark rect,
+.mark circle {
+  fill: currentColor;
+}
+
+.mark path {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-width: 2.4;
+}
+
+.lockup {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.wordmark {
+  color: var(--heat);
+  font-family: var(--font-display);
+  font-size: 1.65rem;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.tagline {
+  margin-top: 0.2rem;
+  color: var(--heat);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+}
+
+@media (max-width: 520px) {
+  .lockup {
+    display: none;
+  }
+}

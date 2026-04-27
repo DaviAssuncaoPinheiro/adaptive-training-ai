@@ -9,6 +9,7 @@ export default function Button({
   disabled = false,
   type = 'button',
   onClick,
+  className = '',
   ...props
 }) {
   const classNames = [
@@ -17,6 +18,7 @@ export default function Button({
     size !== 'md' && styles[`btn-${size}`],
     fullWidth && styles['btn-full'],
     loading && styles['btn-loading'],
+    className,
   ]
     .filter(Boolean)
     .join(' ');
@@ -26,6 +28,7 @@ export default function Button({
       className={classNames}
       type={type}
       disabled={disabled || loading}
+      aria-busy={loading}
       onClick={onClick}
       {...props}
     >

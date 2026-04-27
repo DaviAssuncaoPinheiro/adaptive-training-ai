@@ -8,41 +8,47 @@
 
 .authCard {
   width: 100%;
-  max-width: 420px;
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  padding: var(--space-2xl);
-  backdrop-filter: blur(16px);
-  animation: fadeIn var(--transition-slow) ease-out;
+  max-width: 440px;
+  padding: var(--space-xl);
+  border: var(--border-hair);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  box-shadow: var(--shadow-modal);
+  animation: fadeIn var(--transition-slow) both;
 }
 
 .authHeader {
-  text-align: center;
-  margin-bottom: var(--space-2xl);
+  margin-bottom: var(--space-xl);
 }
 
 .authLogo {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-md);
-  background: var(--color-accent-gradient);
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--text-xl);
-  margin-bottom: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.authEyebrow {
+  margin-bottom: var(--space-sm);
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
 }
 
 .authTitle {
-  font-size: var(--text-2xl);
-  font-weight: 700;
-  margin-bottom: var(--space-xs);
+  margin-bottom: var(--space-sm);
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: 400;
+  line-height: var(--leading-tight);
 }
 
 .authSubtitle {
+  color: var(--text-secondary);
   font-size: var(--text-sm);
-  color: var(--color-text-secondary);
+  line-height: var(--leading-normal);
 }
 
 .authForm {
@@ -52,23 +58,23 @@
 }
 
 .authError {
+  margin-bottom: var(--space-md);
   padding: var(--space-sm) var(--space-md);
-  background: var(--color-danger-soft);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  border-radius: var(--radius-md);
-  color: var(--color-danger);
+  border: 1px solid rgba(230, 57, 70, 0.28);
+  border-radius: var(--radius-xs);
+  background: var(--plasma-soft);
+  color: var(--plasma);
   font-size: var(--text-sm);
-  text-align: center;
 }
 
 .authFooter {
-  text-align: center;
   margin-top: var(--space-lg);
+  color: var(--text-secondary);
   font-size: var(--text-sm);
-  color: var(--color-text-secondary);
+  text-align: center;
 }
 
 .authFooter a {
-  color: var(--color-accent-primary);
-  font-weight: 500;
+  color: var(--heat);
+  font-weight: 700;
 }

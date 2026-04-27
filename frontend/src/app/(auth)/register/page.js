@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Brand from '@/components/brand/Brand';
 import { useAuth } from '@/hooks/useAuth';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
@@ -21,7 +22,7 @@ export default function RegisterPage() {
     setLocalError(null);
 
     if (password !== confirmPassword) {
-      setLocalError('As senhas não coincidem.');
+      setLocalError('As senhas nao coincidem.');
       return;
     }
 
@@ -42,10 +43,13 @@ export default function RegisterPage() {
     <div className={styles.authPage}>
       <div className={styles.authCard}>
         <div className={styles.authHeader}>
-          <div className={styles.authLogo}>⚡</div>
+          <div className={styles.authLogo}>
+            <Brand />
+          </div>
+          <p className={styles.authEyebrow}>Anamnese inicial</p>
           <h1 className={styles.authTitle}>Criar conta</h1>
           <p className={styles.authSubtitle}>
-            Comece sua jornada de treino adaptativo
+            Configure o perfil que alimenta o motor de treino.
           </p>
         </div>
 
@@ -65,7 +69,7 @@ export default function RegisterPage() {
             id="register-password"
             label="Senha"
             type="password"
-            placeholder="Mínimo 6 caracteres"
+            placeholder="Minimo 6 caracteres"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -85,8 +89,7 @@ export default function RegisterPage() {
         </form>
 
         <div className={styles.authFooter}>
-          Já tem uma conta?{' '}
-          <Link href="/login">Entrar</Link>
+          Ja tem uma conta? <Link href="/login">Entrar</Link>
         </div>
       </div>
     </div>

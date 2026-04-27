@@ -1,89 +1,160 @@
-/* ============================
-   DESIGN SYSTEM — Adaptive Training AI
-   ============================ */
+/* ============================================================
+   FERRO - Adaptive Training AI
+   Iron, ink, and instrumentation.
+   ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-
-/* --- Design Tokens --- */
 :root {
-  /* Core palette */
-  --color-bg-primary: #0a0e1a;
-  --color-bg-secondary: #111827;
-  --color-bg-card: rgba(17, 24, 39, 0.7);
-  --color-bg-card-hover: rgba(31, 41, 55, 0.8);
-  --color-bg-glass: rgba(255, 255, 255, 0.03);
-  --color-bg-input: rgba(255, 255, 255, 0.05);
+  --ink-0: #0b0b0d;
+  --ink-1: #131316;
+  --ink-2: #1a1a1f;
+  --ink-3: #232328;
+  --ink-4: #2c2c32;
+  --ink-5: #3a3a41;
+  --ink-6: #686870;
+  --ink-7: #b8b8bd;
+  --ink-8: #e8e6e1;
 
-  /* Accent palette */
-  --color-accent-primary: #6366f1;
-  --color-accent-primary-hover: #818cf8;
-  --color-accent-secondary: #8b5cf6;
-  --color-accent-gradient: linear-gradient(135deg, #6366f1, #8b5cf6, #a78bfa);
-  --color-accent-glow: rgba(99, 102, 241, 0.15);
+  --iron-1: rgba(255, 255, 255, 0.04);
+  --iron-2: rgba(255, 255, 255, 0.07);
+  --iron-3: rgba(255, 255, 255, 0.12);
+  --iron-4: rgba(255, 255, 255, 0.2);
 
-  /* Semantic colors */
-  --color-success: #10b981;
-  --color-success-soft: rgba(16, 185, 129, 0.12);
-  --color-warning: #f59e0b;
-  --color-warning-soft: rgba(245, 158, 11, 0.12);
-  --color-danger: #ef4444;
-  --color-danger-soft: rgba(239, 68, 68, 0.12);
-  --color-info: #3b82f6;
-  --color-info-soft: rgba(59, 130, 246, 0.12);
+  --heat: #ff4d2e;
+  --heat-hot: #ff6b4a;
+  --heat-soft: rgba(255, 77, 46, 0.12);
+  --heat-glow: rgba(255, 77, 46, 0.22);
+  --heat-line: rgba(255, 77, 46, 0.4);
 
-  /* Text colors */
-  --color-text-primary: #f1f5f9;
-  --color-text-secondary: #94a3b8;
-  --color-text-muted: #64748b;
-  --color-text-accent: #a78bfa;
+  --lab: #7fe3d4;
+  --lab-soft: rgba(127, 227, 212, 0.12);
+  --lab-line: rgba(127, 227, 212, 0.35);
+  --plasma: #e63946;
+  --plasma-soft: rgba(230, 57, 70, 0.12);
+  --amber: #e0a526;
+  --amber-soft: rgba(224, 165, 38, 0.12);
+  --wave-gradient: linear-gradient(90deg, var(--heat) 0%, #f7b26b 35%, #c9d6bb 65%, var(--lab) 100%);
 
-  /* Borders */
-  --color-border: rgba(255, 255, 255, 0.06);
-  --color-border-hover: rgba(255, 255, 255, 0.12);
-  --color-border-accent: rgba(99, 102, 241, 0.3);
+  --bg: var(--ink-0);
+  --surface: var(--ink-1);
+  --surface-raised: var(--ink-2);
+  --surface-input: var(--ink-3);
+  --border: var(--iron-2);
+  --border-strong: var(--iron-3);
+  --border-accent: var(--heat-line);
+  --text: var(--ink-8);
+  --text-secondary: var(--ink-7);
+  --text-muted: var(--ink-6);
+  --text-faint: var(--ink-5);
+  --accent: var(--heat);
+  --accent-hover: var(--heat-hot);
 
-  /* Spacing scale */
-  --space-xs: 0.25rem;
-  --space-sm: 0.5rem;
-  --space-md: 1rem;
-  --space-lg: 1.5rem;
-  --space-xl: 2rem;
-  --space-2xl: 3rem;
-  --space-3xl: 4rem;
+  --font-display: var(--font-display-next), "Times New Roman", Georgia, serif;
+  --font-body: var(--font-body-next), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: var(--font-mono-next), "SF Mono", Menlo, Consolas, monospace;
+  --font-sans: var(--font-body);
 
-  /* Border radius */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.5rem;
-  --radius-full: 9999px;
-
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.15);
-
-  /* Transitions */
-  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
-
-  /* Typography */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
-
+  --text-2xs: 0.6875rem;
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
+  --text-md: 0.9375rem;
   --text-base: 1rem;
-  --text-lg: 1.125rem;
-  --text-xl: 1.25rem;
-  --text-2xl: 1.5rem;
-  --text-3xl: 1.875rem;
-  --text-4xl: 2.25rem;
+  --text-lg: 1.0625rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.5rem;
+  --text-4xl: 3.5rem;
+  --text-5xl: 5rem;
+
+  --leading-tight: 1.1;
+  --leading-snug: 1.3;
+  --leading-normal: 1.5;
+  --leading-loose: 1.7;
+  --tracking-display: 0;
+  --tracking-tight: 0;
+  --tracking-wide: 0.04em;
+  --tracking-eyebrow: 0.14em;
+
+  --space-0: 0;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+  --space-xs: var(--space-1);
+  --space-sm: var(--space-2);
+  --space-md: var(--space-4);
+  --space-lg: var(--space-5);
+  --space-xl: var(--space-6);
+  --space-2xl: var(--space-7);
+  --space-3xl: var(--space-8);
+
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 8px;
+  --radius-pill: 999px;
+  --radius-full: 999px;
+
+  --border-hair: 1px solid var(--iron-2);
+  --border-hair-strong: 1px solid var(--iron-3);
+  --border-accent-line: 1px solid var(--heat-line);
+  --border-dotted: 1px dotted var(--iron-3);
+  --shadow-inset-top: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --shadow-inset-press: inset 0 2px 0 rgba(0, 0, 0, 0.4);
+  --shadow-modal: 0 24px 48px -16px rgba(0, 0, 0, 0.6), var(--shadow-inset-top);
+  --shadow-focus-heat: 0 0 0 2px rgba(255, 77, 46, 0.2);
+
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --duration-instant: 120ms;
+  --duration-base: 240ms;
+  --duration-slow: 480ms;
+  --transition-fast: var(--duration-instant) var(--ease);
+  --transition-base: var(--duration-base) var(--ease);
+  --transition-slow: var(--duration-slow) var(--ease);
+
+  --max-content: 1280px;
+  --navbar-h: 64px;
+  --grid-step: 8px;
+
+  /* Compatibility aliases for the original CSS modules. */
+  --color-bg-primary: var(--ink-0);
+  --color-bg-secondary: var(--ink-1);
+  --color-bg-card: var(--ink-1);
+  --color-bg-card-hover: var(--ink-2);
+  --color-bg-glass: var(--ink-2);
+  --color-bg-input: var(--ink-3);
+  --color-accent-primary: var(--heat);
+  --color-accent-primary-hover: var(--heat-hot);
+  --color-accent-secondary: var(--heat);
+  --color-accent-gradient: var(--heat);
+  --color-accent-glow: var(--heat-soft);
+  --color-accent-soft: var(--heat-soft);
+  --color-success: var(--lab);
+  --color-success-soft: var(--lab-soft);
+  --color-warning: var(--amber);
+  --color-warning-soft: var(--amber-soft);
+  --color-danger: var(--plasma);
+  --color-danger-soft: var(--plasma-soft);
+  --color-info: var(--lab);
+  --color-info-soft: var(--lab-soft);
+  --color-text-primary: var(--text);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-text-accent: var(--heat);
+  --color-border: var(--iron-2);
+  --color-border-hover: var(--iron-3);
+  --color-border-accent: var(--heat-line);
+  --shadow-sm: var(--shadow-inset-top);
+  --shadow-md: var(--shadow-inset-top);
+  --shadow-lg: var(--shadow-modal);
+  --shadow-glow: 0 0 0 1px var(--heat-line);
 }
 
-/* --- Global Reset --- */
 *,
 *::before,
 *::after {
@@ -100,85 +171,119 @@ html {
 }
 
 body {
-  font-family: var(--font-sans);
-  background-color: var(--color-bg-primary);
-  color: var(--color-text-primary);
-  line-height: 1.6;
   min-height: 100vh;
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: var(--grid-step) var(--grid-step);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  font-weight: 500;
+  line-height: var(--leading-normal);
 }
 
-/* Subtle animated background */
 body::before {
-  content: '';
+  content: "";
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background:
-    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(99, 102, 241, 0.06) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 90%, rgba(139, 92, 246, 0.04) 0%, transparent 50%);
+  inset: 0;
   pointer-events: none;
-  z-index: 0;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  z-index: 1000;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
 }
 
 a {
-  color: var(--color-accent-primary);
+  color: var(--accent);
   text-decoration: none;
+  text-underline-offset: 0.22em;
   transition: color var(--transition-fast);
 }
 
 a:hover {
-  color: var(--color-accent-primary-hover);
+  color: var(--accent-hover);
+  text-decoration: underline;
 }
 
-/* --- Utility Classes --- */
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
 .container {
   width: 100%;
-  max-width: 1200px;
+  max-width: var(--max-content);
   margin: 0 auto;
-  padding: 0 var(--space-lg);
+  padding: 0 var(--space-xl);
 }
 
 .page-content {
   position: relative;
   z-index: 1;
-  padding: var(--space-2xl) 0;
+  min-height: calc(100vh - var(--navbar-h));
 }
 
-/* --- Animations --- */
+.h-display,
+.h1 {
+  color: var(--text);
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: var(--tracking-display);
+  line-height: var(--leading-tight);
+}
+
+.h-display {
+  font-size: var(--text-4xl);
+}
+
+.h1 {
+  font-size: var(--text-3xl);
+}
+
+.eyebrow {
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+}
+
+.numeral,
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 8px rgba(99, 102, 241, 0.2); }
-  50%      { box-shadow: 0 0 20px rgba(99, 102, 241, 0.35); }
-}
-
-@keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .animate-fade-in {
-  animation: fadeIn var(--transition-base) ease-out both;
+  animation: fadeIn var(--transition-base) both;
 }
 
-.animate-slide-up {
-  animation: slideUp var(--transition-slow) ease-out both;
-}
-
-/* Stagger children animations */
 .stagger-children > * {
-  animation: fadeIn var(--transition-base) ease-out both;
+  animation: fadeIn var(--transition-base) both;
 }
+
 .stagger-children > *:nth-child(1) { animation-delay: 0ms; }
 .stagger-children > *:nth-child(2) { animation-delay: 60ms; }
 .stagger-children > *:nth-child(3) { animation-delay: 120ms; }
@@ -186,17 +291,37 @@ a:hover {
 .stagger-children > *:nth-child(5) { animation-delay: 240ms; }
 .stagger-children > *:nth-child(6) { animation-delay: 300ms; }
 
-/* --- Scrollbar --- */
-::-webkit-scrollbar {
-  width: 6px;
+::selection {
+  background: var(--heat);
+  color: var(--ink-0);
 }
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: var(--radius-full);
+  background: var(--iron-2);
+  border-radius: var(--radius-pill);
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-border-hover);
+  background: var(--iron-3);
+}
+
+@media (max-width: 720px) {
+  :root {
+    --text-3xl: 2rem;
+    --text-4xl: 2.625rem;
+    --text-5xl: 3.5rem;
+  }
+
+  .container {
+    padding-inline: var(--space-md);
+  }
 }

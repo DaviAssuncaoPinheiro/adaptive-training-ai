@@ -1,66 +1,104 @@
 .card {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: var(--border-hair);
+  border-radius: var(--radius-sm);
   padding: var(--space-lg);
-  backdrop-filter: blur(12px);
-  transition: all var(--transition-base);
+  box-shadow: var(--shadow-inset-top);
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast);
 }
 
 .card:hover {
-  border-color: var(--color-border-hover);
+  border-color: var(--iron-3);
+  background: var(--surface-raised);
 }
 
 .cardInteractive:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--color-border-accent);
+  border-color: var(--heat-line);
+}
+
+.eyebrow,
+.metricEyebrow {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-3);
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
 }
 
 .cardHeader {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+  gap: var(--space-md);
   margin-bottom: var(--space-md);
 }
 
 .cardTitle {
+  color: var(--text);
+  font-family: var(--font-body);
   font-size: var(--text-lg);
-  font-weight: 600;
-  color: var(--color-text-primary);
+  font-weight: 700;
+  line-height: var(--leading-snug);
 }
 
 .cardSubtitle {
+  margin-top: var(--space-1);
+  color: var(--text-muted);
   font-size: var(--text-sm);
-  color: var(--color-text-secondary);
 }
 
 .cardBody {
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   font-size: var(--text-sm);
-  line-height: 1.7;
+  line-height: var(--leading-loose);
 }
 
-/* Metric card variant */
 .metricCard {
-  composes: card;
-  text-align: center;
-  padding: var(--space-xl);
+  background: var(--surface);
+  border: var(--border-hair);
+  border-radius: var(--radius-sm);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-inset-top);
+  min-height: 146px;
 }
 
 .metricValue {
-  font-size: var(--text-3xl);
-  font-weight: 800;
-  background: var(--color-accent-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  line-height: 1.2;
-  margin-bottom: var(--space-xs);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 5vw, 3.5rem);
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.metricUnit {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 500;
 }
 
 .metricLabel {
+  margin-top: var(--space-sm);
+  color: var(--text-secondary);
   font-size: var(--text-sm);
-  color: var(--color-text-muted);
-  font-weight: 500;
+  font-weight: 600;
+}
+
+.metricDelta {
+  margin-top: var(--space-sm);
+  color: var(--lab);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
 }

@@ -2,15 +2,22 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import {
+  Activity,
+  CalendarDays,
+  Dumbbell,
+  LogOut,
+  UserRound,
+} from 'lucide-react';
+import Brand from '@/components/brand/Brand';
 import { useAuthContext } from '@/context/AuthProvider';
 import styles from './Navbar.module.css';
 
 const NAV_ITEMS = [
-  { href: '/dashboard', label: 'Dashboard' },
-  { href: '/session', label: 'Sessão' },
-  { href: '/check-in', label: 'Check-in' },
-  { href: '/microcycle', label: 'Microciclo' },
-  { href: '/profile', label: 'Perfil' },
+  { href: '/dashboard', label: 'Dashboard', Icon: Activity },
+  { href: '/session', label: 'Sessao', Icon: Dumbbell },
+  { href: '/microcycle', label: 'Microciclo', Icon: CalendarDays },
+  { href: '/profile', label: 'Perfil', Icon: UserRound },
 ];
 
 export default function Navbar() {
@@ -27,33 +34,41 @@ export default function Navbar() {
 
   const initials = user.email
     ? user.email.substring(0, 2).toUpperCase()
-    : '??';
+    : 'AI';
 
   return (
     <nav className={styles.navbar}>
-      <Link href="/dashboard" className={styles.logo}>
-        <span className={styles.logoIcon}>⚡</span>
-        Adaptive AI
+      <Link href="/dashboard" className={styles.logo} aria-label="Adaptive Training AI">
+        <Brand />
       </Link>
 
       <div className={styles.nav}>
-        {NAV_ITEMS.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`${styles.navLink} ${
-              pathname === item.href ? styles.navLinkActive : ''
-            }`}
-          >
-            {item.label}
-          </Link>
-        ))}
+        {NAV_ITEMS.map(({ href, label, Icon }) => {
+          const active = pathname === href;
+
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={`${styles.navLink} ${active ? styles.navLinkActive : ''}`}
+            >
+              <Icon aria-hidden="true" size={16} strokeWidth={1.6} />
+              <span>{label}</span>
+            </Link>
+          );
+        })}
       </div>
 
       <div className={styles.userSection}>
         <div className={styles.avatar}>{initials}</div>
-        <button onClick={handleSignOut} className={styles.signOutBtn}>
-          Sair
+        <button
+          type="button"
+          onClick={handleSignOut}
+          className={styles.signOutBtn}
+          aria-label="Sair"
+          title="Sair"
+        >
+          <LogOut aria-hidden="true" size={15} strokeWidth={1.6} />
         </button>
       </div>
     </nav>

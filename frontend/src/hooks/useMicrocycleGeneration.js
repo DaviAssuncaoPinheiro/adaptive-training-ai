@@ -10,6 +10,7 @@ export function useMicrocycleGeneration({ onDone } = {}) {
   const [error, setError] = useState(null);
   const timerRef = useRef(null);
   const onDoneRef = useRef(onDone);
+  const pollRef = useRef(null);
 
   useEffect(() => {
     onDoneRef.current = onDone;
@@ -35,20 +36,27 @@ export function useMicrocycleGeneration({ onDone } = {}) {
         setError(job.error || 'A IA não conseguiu gerar o microciclo.');
         return;
       }
-      timerRef.current = setTimeout(() => poll(jobId), POLL_INTERVAL_MS);
+      timerRef.current = setTimeout(() => {
+        pollRef.current?.(jobId);
+      }, POLL_INTERVAL_MS);
     } catch (err) {
       setStatus('failed');
       setError(err.message);
     }
   }, []);
 
-  const generate = useCallback(async () => {
+  useEffect(() => {
+    pollRef.current = poll;
+  }, [poll]);
+
+  const generate = useCallback(async (briefing = {}) => {
     clearTimer();
     setStatus('generating');
     setError(null);
     try {
       const { job_id: jobId } = await apiFetch('/microcycle/generate', {
         method: 'POST',
+        body: JSON.stringify(briefing),
       });
       timerRef.current = setTimeout(() => poll(jobId), POLL_INTERVAL_MS);
     } catch (err) {
