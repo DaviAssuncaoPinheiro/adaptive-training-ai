@@ -9,6 +9,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
+from rag.knowledge_manager import ensure_knowledge
 from rag.reference_cache import ReferenceCache
 from rag.science_agent import build_science_agent
 from rag.vector_store import build_knowledge_base
@@ -84,11 +85,14 @@ def post_justification(
     payload: RagQuery,
     cache: ReferenceCache = Depends(get_cache),
     agent=Depends(get_agent),
+    kb=Depends(get_knowledge_base),
 ) -> JustificationResponse:
     key = cache.make_key(payload.model_dump())
     cached = cache.get(key)
     if cached is not None:
         return JustificationResponse(**cached, cached=True)
+
+    ensure_knowledge(query=payload.goal, knowledge_base=kb)
 
     try:
         response = agent.run(_build_prompt(payload))

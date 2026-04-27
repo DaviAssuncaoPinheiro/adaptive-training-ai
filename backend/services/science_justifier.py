@@ -12,19 +12,29 @@ import re
 from collections import Counter
 from typing import Any
 
-from rag.live_science_agent import build_live_science_agent
+from rag.knowledge_manager import ensure_knowledge
+from rag.science_agent import build_science_agent
+from rag.vector_store import build_knowledge_base
 from routers.rag_router import _OLLAMA_ERROR_RE
 from schemas.microcycle import MicrocycleSchema
 
 logger = logging.getLogger(__name__)
 
+_kb_singleton = None
 _agent_singleton = None
+
+
+def _get_kb():
+    global _kb_singleton
+    if _kb_singleton is None:
+        _kb_singleton = build_knowledge_base()
+    return _kb_singleton
 
 
 def _get_agent():
     global _agent_singleton
     if _agent_singleton is None:
-        _agent_singleton = build_live_science_agent()
+        _agent_singleton = build_science_agent(knowledge_base=_get_kb())
     return _agent_singleton
 
 
@@ -43,6 +53,8 @@ def build_justification(*, profile: dict[str, Any], plan: MicrocycleSchema) -> s
         f"- RPE máximo do microciclo: {plan.max_rpe_cap}\n"
         f"- Volume semanal alvo por grupo muscular: {plan.max_weekly_sets_per_muscle} séries"
     )
+
+    ensure_knowledge(query=profile.get("primary_goal", ""), knowledge_base=_get_kb())
 
     try:
         response = _get_agent().run(prompt)
