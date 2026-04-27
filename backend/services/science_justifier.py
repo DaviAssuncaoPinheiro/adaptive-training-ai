@@ -12,9 +12,9 @@ import re
 from collections import Counter
 from typing import Any
 
-from rag.live_science_agent import build_live_science_agent
-from routers.rag_router import _OLLAMA_ERROR_RE
-from schemas.microcycle import MicrocycleSchema
+from backend.rag.live_science_agent import build_live_science_agent
+from backend.routers.rag_router import _OLLAMA_ERROR_RE
+from backend.schemas.microcycle import MicrocycleSchema
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +54,12 @@ def build_justification(*, profile: dict[str, Any], plan: MicrocycleSchema) -> s
     if not text or _OLLAMA_ERROR_RE.search(text):
         logger.warning("science agent returned empty/error content; falling back")
         return None
-    return text
+        
+    # Open-source models sometimes hallucinate tool calls into text
+    # We strip out JSON markdown blocks containing "name": "search_pubmed" etc.
+    text = re.sub(r'```json\s*\{\s*"name":\s*"[^"]+".*?\}\s*```\s*', '', text, flags=re.DOTALL)
+    
+    return text.strip()
 
 
 def _representative_rep_range(plan: MicrocycleSchema) -> str | None:

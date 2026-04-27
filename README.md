@@ -66,15 +66,32 @@ npm run dev
 Acesse [http://localhost:3000](http://localhost:3000) no seu navegador.
 
 ### 4. Backend API (FastAPI)
-From the `backend/` directory:
-```bash
-python -m venv .venv
-. .venv/Scripts/activate     # Windows bash — use .venv/bin/activate on Unix
-pip install -r requirements.txt
-uvicorn api_server:app --reload --port 8000
-```
+Como os módulos do Python estão mapeados para buscar a pasta root (`backend.`), o ideal é inicializar o virtual environment de dentro do `backend/` mas rodar o servidor de fora (da raiz):
 
-Before the first request, pull the required Ollama models (once):
+1. **Instale as bibliotecas:**
+   ```bash
+   cd backend
+   python -m venv .venv
+   
+   # No Windows (PowerShell):
+   .\.venv\Scripts\Activate.ps1
+   # No Linux/Mac:
+   source .venv/bin/activate
+   
+   pip install -r requirements.txt
+   cd ..
+   ```
+
+2. **Rode o servidor API (Na pasta Raiz do projeto):**
+   *(Com o virtual environment ainda ativado)*
+   ```bash
+   uvicorn backend.api_server:app --reload --port 8000
+   ```
+
+> [!WARNING]
+> Certifique-se de que a **`SUPABASE_JWT_SECRET`** colocada em `backend/.env` é a chave longa do JWT, **diferente da Anon Key** ou do UUID Key ID.
+
+Antes da primeira requisição, puxe os modelos base do Ollama para dentro do container Docker local (somente na primeira vez):
 ```bash
 docker exec -it ollama_service ollama pull llama3.1
 docker exec -it ollama_service ollama pull nomic-embed-text
@@ -84,12 +101,6 @@ docker exec -it ollama_service ollama pull nomic-embed-text
 > com `PubmedTools`, que busca abstracts no PubMed em tempo real a cada
 > geração. Não precisa popular base nenhuma — basta `NCBI_ENTREZ_EMAIL` setado
 > em `backend/.env`.
->
-> Se quiser **cachear artigos full-text localmente** pra acelerar (opcional),
-> ainda dá pra rodar:
-> ```bash
-> python -m rag.pubmed_ingestor --query "resistance training hypertrophy" --max 25
-> ```
 
 ---
 

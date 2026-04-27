@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import backend.config  # ensures load_dotenv runs early!
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routers import microcycle_router, rag_router
+from backend.routers.microcycle_router import router as microcycle_router
+from backend.routers.rag_router import router as rag_router
 
 app = FastAPI(title="Adaptive Training API", version="0.1.0")
 
@@ -17,8 +19,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(rag_router.router, prefix="/api/rag")
-app.include_router(microcycle_router.router, prefix="/api/microcycle")
+app.include_router(rag_router, prefix="/api/rag")
+app.include_router(microcycle_router, prefix="/api/microcycle")
 
 
 @app.get("/health")

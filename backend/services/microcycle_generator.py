@@ -18,7 +18,7 @@ from typing import Any
 import ollama
 from pydantic import ValidationError
 
-from schemas.microcycle import MicrocycleSchema
+from backend.schemas.microcycle import MicrocycleSchema
 
 logger = logging.getLogger(__name__)
 

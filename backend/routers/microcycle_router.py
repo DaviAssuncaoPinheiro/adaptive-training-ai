@@ -9,10 +9,10 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 
-from auth.supabase_jwt import AuthedUser, get_current_user
-from services.microcycle_generator import GenerationError, generate_microcycle
-from services.science_justifier import build_justification
-from services.supabase_client import SupabaseUserClient
+from backend.auth.supabase_jwt import AuthedUser, get_current_user
+from backend.services.microcycle_generator import GenerationError, generate_microcycle
+from backend.services.science_justifier import build_justification
+from backend.services.supabase_client import SupabaseUserClient
 
 logger = logging.getLogger(__name__)
 

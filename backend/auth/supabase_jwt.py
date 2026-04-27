@@ -1,8 +1,8 @@
 """FastAPI dependency that validates Supabase access tokens.
 
-Supabase issues HS256 JWTs signed with the project's `JWT_SECRET`. Validating
-locally avoids a network call per request and lets the FastAPI process forward
-the same token to PostgREST so RLS still applies.
+Uses the Supabase client to validate the token natively against the Auth API.
+This ensures complete compatibility with ES256 and other modern asymmetric 
+JWT algorithms without needing to locally cache JWKS public keys.
 """
 from __future__ import annotations
 
@@ -11,7 +11,6 @@ from dataclasses import dataclass
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from jose import JWTError, jwt
 
 bearer_scheme = HTTPBearer(auto_error=False)
 
@@ -31,32 +30,22 @@ def get_current_user(
             detail="missing bearer token",
         )
 
-    secret = os.environ.get("SUPABASE_JWT_SECRET")
-    if not secret:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="server JWT secret not configured",
-        )
-
     token = credentials.credentials
     try:
-        payload = jwt.decode(
-            token,
-            secret,
-            algorithms=["HS256"],
-            audience="authenticated",
-        )
-    except JWTError:
+        from supabase import create_client
+        url = os.environ["SUPABASE_URL"]
+        anon = os.environ["SUPABASE_ANON_KEY"]
+        sb = create_client(url, anon)
+        
+        user_resp = sb.auth.get_user(token)
+        if not user_resp or not user_resp.user:
+            raise ValueError("No user returned")
+            
+        user_id = user_resp.user.id
+    except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="invalid token",
-        )
-
-    user_id = payload.get("sub")
-    if not user_id:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="token missing sub claim",
+            detail=f"invalid token: {str(e)}",
         )
 
     return AuthedUser(user_id=user_id, jwt=token)

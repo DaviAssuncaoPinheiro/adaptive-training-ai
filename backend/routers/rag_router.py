@@ -9,9 +9,9 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
-from rag.reference_cache import ReferenceCache
-from rag.science_agent import build_science_agent
-from rag.vector_store import build_knowledge_base
+from backend.rag.reference_cache import ReferenceCache
+from backend.rag.science_agent import build_science_agent
+from backend.rag.vector_store import build_knowledge_base
 
 logger = logging.getLogger(__name__)
 
