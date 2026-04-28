@@ -42,7 +42,7 @@ def _fetch_workout_logs(user_id: str, since: date) -> list[dict]:
         .order("session_date", desc=True)
         .execute()
     )
-    return response.data or []
+    return getattr(response, "data", []) or [] if response else []
 
 
 def _fetch_check_ins(user_id: str, since: date) -> list[dict]:
@@ -57,7 +57,7 @@ def _fetch_check_ins(user_id: str, since: date) -> list[dict]:
         .order("check_in_date", desc=True)
         .execute()
     )
-    return response.data or []
+    return getattr(response, "data", []) or [] if response else []
 
 
 def _fetch_latest_microcycle(user_id: str) -> dict | None:
@@ -73,7 +73,7 @@ def _fetch_latest_microcycle(user_id: str) -> dict | None:
         .maybe_single()
         .execute()
     )
-    return response.data
+    return getattr(response, "data", None) if response else None
 
 
 # ---------------------------------------------------------------------------

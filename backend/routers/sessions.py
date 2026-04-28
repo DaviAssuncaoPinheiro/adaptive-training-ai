@@ -76,10 +76,11 @@ async def create_workout_log(payload: WorkoutLogCreateRequest):
         logger.error("Erro ao inserir workout_log: %s", str(e))
         raise HTTPException(status_code=500, detail=f"Erro ao registrar sessao: {str(e)}")
 
-    if not response.data:
+    data = getattr(response, "data", []) or [] if response else []
+    if not data:
         raise HTTPException(status_code=500, detail="Falha ao persistir sessao de treino.")
 
-    record = response.data[0]
+    record = data[0]
     record["sets"] = _parse_sets(record.get("sets", []))
 
     return WorkoutLogResponse(**record)
@@ -107,10 +108,11 @@ async def get_workout_log(log_id: int):
         .execute()
     )
 
-    if response.data is None:
+    data = getattr(response, "data", None) if response else None
+    if data is None:
         raise HTTPException(status_code=404, detail="Log de treino nao encontrado.")
 
-    record = response.data
+    record = data
     record["sets"] = _parse_sets(record.get("sets", []))
     return WorkoutLogResponse(**record)
 
@@ -147,7 +149,7 @@ async def get_workout_history(
         .execute()
     )
 
-    records = response.data or []
+    records = getattr(response, "data", []) or [] if response else []
     sessions = []
     for r in records:
         r["sets"] = _parse_sets(r.get("sets", []))
@@ -201,7 +203,7 @@ async def get_exercise_progress(
         .execute()
     )
 
-    records = response.data or []
+    records = getattr(response, "data", []) or [] if response else []
 
     # Agrupar por exercicio e sessao
     exercise_data: dict[str, list[ExerciseProgressEntry]] = {}
@@ -289,10 +291,11 @@ async def create_check_in(payload: CheckInCreateRequest):
         logger.error("Erro ao inserir check-in: %s", str(e))
         raise HTTPException(status_code=500, detail=f"Erro ao registrar check-in: {str(e)}")
 
-    if not response.data:
+    data = getattr(response, "data", []) or [] if response else []
+    if not data:
         raise HTTPException(status_code=500, detail="Falha ao persistir check-in.")
 
-    return CheckInResponse(**response.data[0])
+    return CheckInResponse(**data[0])
 
 
 # ---------------------------------------------------------------------------
@@ -324,5 +327,5 @@ async def get_check_ins(
         .execute()
     )
 
-    records = response.data or []
+    records = getattr(response, "data", []) or [] if response else []
     return [CheckInResponse(**r) for r in records]

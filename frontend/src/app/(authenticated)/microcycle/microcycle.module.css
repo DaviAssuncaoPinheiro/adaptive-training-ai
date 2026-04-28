@@ -6,7 +6,51 @@
 }
 
 .pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-md);
   margin-bottom: var(--space-xl);
+}
+
+.headerActions {
+  flex-shrink: 0;
+  padding-top: var(--space-sm);
+}
+
+.generatingBanner,
+.successBanner,
+.errorBanner {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-xs);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  margin-bottom: var(--space-md);
+  animation: fadeIn 0.3s ease;
+}
+
+.generatingBanner {
+  border: 1px solid rgba(247, 178, 107, 0.3);
+  background: rgba(247, 178, 107, 0.08);
+  color: var(--amber);
+}
+
+.successBanner {
+  border: 1px solid rgba(127, 227, 212, 0.3);
+  background: rgba(127, 227, 212, 0.08);
+  color: var(--lab);
+}
+
+.errorBanner {
+  border: 1px solid rgba(255, 77, 46, 0.3);
+  background: rgba(255, 77, 46, 0.08);
+  color: var(--heat);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .eyebrow,

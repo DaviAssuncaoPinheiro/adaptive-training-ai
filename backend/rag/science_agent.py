@@ -4,7 +4,9 @@ from agno.agent import Agent
 from agno.knowledge import Knowledge
 from agno.models.ollama import Ollama
 
-LLM_MODEL_ID = "llama3.1"
+import os
+
+LLM_MODEL_ID = os.getenv("MICROCYCLE_MODEL_ID", "llama3")
 
 SYSTEM_PROMPT = (
     "You are a sports-science assistant that justifies resistance-training "

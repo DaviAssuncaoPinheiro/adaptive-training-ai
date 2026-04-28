@@ -6,9 +6,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-from routers import microcycle_router, rag_router
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
-load_dotenv(Path(__file__).resolve().parent / ".env")
+from routers import microcycle_router, rag_router  # noqa: E402 — after dotenv
 
 app = FastAPI(title="Adaptive Training API", version="0.1.0")
 

@@ -138,7 +138,33 @@ export default function MicrocyclePage() {
             {formatDate(microcycle.start_date)} - {formatDate(microcycle.end_date)}
           </p>
         </div>
+        <div className={styles.headerActions}>
+          <Button
+            variant="secondary"
+            onClick={() => generation.generate(briefing)}
+            loading={isGenerating}
+            disabled={isGenerating}
+          >
+            {isGenerating ? 'Gerando...' : 'Gerar novo microciclo'}
+          </Button>
+        </div>
       </header>
+
+      {isGenerating && (
+        <div className={styles.generatingBanner}>
+          <span>Gerando novo microciclo — o motor está combinando perfil, check-ups e histórico...</span>
+        </div>
+      )}
+      {generation.status === 'done' && (
+        <div className={styles.successBanner}>
+          <span>Novo microciclo gerado com sucesso!</span>
+        </div>
+      )}
+      {generation.status === 'failed' && (
+        <div className={styles.errorBanner}>
+          <span>Erro: {generation.error}</span>
+        </div>
+      )}
 
       <WaveMotif />
 

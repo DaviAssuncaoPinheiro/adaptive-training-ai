@@ -44,12 +44,13 @@ def _fetch_profile(user_id: str) -> dict:
         .maybe_single()
         .execute()
     )
-    if response.data is None:
+    data = getattr(response, "data", None) if response else None
+    if data is None:
         raise HTTPException(
             status_code=404,
             detail="Perfil do praticante nao encontrado. Complete o onboarding antes de gerar um microciclo.",
         )
-    return response.data
+    return data
 
 
 # ---------------------------------------------------------------------------

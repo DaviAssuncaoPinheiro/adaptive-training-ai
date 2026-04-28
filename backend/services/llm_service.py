@@ -401,7 +401,8 @@ def persist_microcycle(microcycle: dict) -> dict:
         .execute()
     )
 
-    if not response.data:
+    data = getattr(response, "data", []) or [] if response else []
+    if not data:
         raise RuntimeError("Falha ao persistir microciclo no banco de dados.")
 
-    return response.data[0]
+    return data[0]

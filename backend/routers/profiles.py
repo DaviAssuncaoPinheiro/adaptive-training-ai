@@ -47,10 +47,11 @@ async def get_profile(user_id: str):
         .execute()
     )
 
-    if response.data is None:
+    data = getattr(response, "data", None) if response else None
+    if data is None:
         raise HTTPException(status_code=404, detail="Perfil nao encontrado")
 
-    return ProfileResponse(**response.data)
+    return ProfileResponse(**data)
 
 
 # ---------------------------------------------------------------------------
@@ -85,10 +86,11 @@ async def create_profile(
         .execute()
     )
 
-    if not response.data:
+    data = getattr(response, "data", []) or [] if response else []
+    if not data:
         raise HTTPException(status_code=500, detail="Falha ao criar perfil")
 
-    return ProfileResponse(**response.data[0])
+    return ProfileResponse(**data[0])
 
 
 # ---------------------------------------------------------------------------
@@ -121,7 +123,8 @@ async def update_profile(user_id: str, payload: ProfileUpdateRequest):
         .execute()
     )
 
-    if not response.data:
+    data = getattr(response, "data", []) or [] if response else []
+    if not data:
         raise HTTPException(status_code=404, detail="Perfil nao encontrado para atualizar")
 
-    return ProfileResponse(**response.data[0])
+    return ProfileResponse(**data[0])
