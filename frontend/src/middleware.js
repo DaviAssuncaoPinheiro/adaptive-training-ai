@@ -7,7 +7,7 @@ function isPublicRoute(pathname) {
   return pathname === '/' || AUTH_ROUTES.some((route) => pathname.startsWith(route));
 }
 
-export async function proxy(request) {
+export async function middleware(request) {
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(

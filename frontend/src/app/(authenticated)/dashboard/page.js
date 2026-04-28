@@ -110,7 +110,7 @@ export default function DashboardPage() {
   const readinessSource = todayCheckIn || checkup;
   const readiness = computeReadiness(readinessSource);
   const readinessInfo = readinessCopy(readiness);
-  const needsAnamnesis = profile && (
+  const needsAnamnesis = !profile || (
     !profile.weekly_frequency ||
     !profile.session_duration_minutes ||
     !profile.available_equipment
