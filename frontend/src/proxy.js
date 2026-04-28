@@ -1,9 +1,13 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
 
-const PUBLIC_ROUTES = ['/login', '/register'];
+const AUTH_ROUTES = ['/login', '/register'];
 
-export async function middleware(request) {
+function isPublicRoute(pathname) {
+  return pathname === '/' || AUTH_ROUTES.some((route) => pathname.startsWith(route));
+}
+
+export async function proxy(request) {
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -31,19 +35,20 @@ export async function middleware(request) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isPublicRoute = PUBLIC_ROUTES.some((route) =>
+  const publicRoute = isPublicRoute(request.nextUrl.pathname);
+  const authRoute = AUTH_ROUTES.some((route) =>
     request.nextUrl.pathname.startsWith(route)
   );
 
   // Redirect unauthenticated users to login
-  if (!user && !isPublicRoute) {
+  if (!user && !publicRoute) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     return NextResponse.redirect(url);
   }
 
   // Redirect authenticated users away from auth pages
-  if (user && isPublicRoute) {
+  if (user && authRoute) {
     const url = request.nextUrl.clone();
     url.pathname = '/dashboard';
     return NextResponse.redirect(url);
